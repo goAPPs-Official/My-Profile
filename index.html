@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>goApps | Social Profile</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#1877f2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="logo-animation">go</div>
+            <div class="loader-ring"></div>
+            <p>Loading goApps...</p>
+        </div>
+    </div>
+
+    <div class="profile-container">
+        <header class="cover-photo">
+            <div class="avatar-container">
+                <label for="pfp-input" class="pfp-label">
+                    <img src="https://via.placeholder.com/150" alt="Profile" id="display-pfp" class="profile-pic">
+                    <div class="upload-overlay">📸</div>
+                </label>
+                <input type="file" id="pfp-input" accept="image/*" style="display: none;">
+            </div>
+        </header>
+
+        <section class="user-details">
+            <h1 id="user-name">Alex Johnson</h1>
+            <p id="user-bio" class="bio">Exploring the world of goApps 🚀</p>
+            <div class="button-group">
+                <button id="open-edit" class="secondary-btn">Edit Profile</button>
+                <button id="share-profile" class="primary-btn">🔗 Share</button>
+                <button id="theme-toggle" class="secondary-btn">🌙 Dark Mode</button>
+            </div>
+        </section>
+
+        <hr>
+
+        <div class="main-layout">
+            <aside class="sidebar">
+                <div class="card wallet-card">
+                    <h3>Account Balance</h3>
+                    <div class="balance-display">$<span id="balance-amount">0</span></div>
+                    <div class="button-group">
+                        <button id="topup-btn" class="primary-btn">Top Up</button>
+                        <button id="withdraw-btn" class="secondary-btn">Withdraw</button>
+                    </div>
+                </div>
+
+                <div class="card friends-list-card">
+                    <h3>Friends</h3>
+                    <input type="text" id="friend-search" placeholder="Search friends..." class="search-bar">
+                    <div id="friends-container"></div>
+                </div>
+
+                <button id="open-settings" class="secondary-btn full-width">⚙️ App Settings</button>
+            </aside>
+
+            <main class="feed-container">
+                <div class="card create-post-card">
+                    <div class="post-header">
+                        <img src="https://via.placeholder.com/40" class="mini-pfp current-user-pfp">
+                        <button id="open-post-modal" class="fake-input">What's on your mind?</button>
+                    </div>
+                </div>
+                <div id="post-feed"></div>
+            </main>
+        </div>
+    </div>
+
+    <div id="edit-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Edit Profile</h2>
+            <div class="input-group"><label>Name</label><input type="text" id="edit-name"></div>
+            <div class="input-group"><label>Bio</label><textarea id="edit-bio"></textarea></div>
+            <div class="modal-actions">
+                <button id="cancel-edit" class="secondary-btn">Cancel</button>
+                <button id="save-profile" class="primary-btn">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Settings</h2>
+            <div class="setting-item"><span>Notifications</span><button id="test-notif" class="secondary-btn-sm">Test</button></div>
+            <div class="setting-item"><span>Storage</span><p id="storage-info" class="tx-time"></p></div>
+            <div class="modal-actions">
+                <button id="clear-data" class="danger-btn">Reset App</button>
+                <button id="close-settings" class="primary-btn">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
