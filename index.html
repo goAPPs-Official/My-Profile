@@ -61,12 +61,30 @@
     </div>
 
     <div id="modal" class="modal-overlay">
-        <div class="modal-content">
-            <h2>Limit Reached! 🚀</h2>
-            <p>You have used your 3 free goAPPs slots. Upgrade to Pro to connect unlimited services.</p>
-            <button class="btn-upgrade" onclick="closeModal()">Upgrade for $9.99/mo</button>
-            <button class="btn-close" onclick="closeModal()">Maybe Later</button>
+        <div id="modal" class="modal-overlay">
+    <div class="modal-content marketplace">
+        <div class="modal-header">
+            <h2>Connect new goAPPs</h2>
+            <input type="text" id="app-search" placeholder="Search apps (e.g. 'Finance', 'Social')..." onkeyup="filterApps()">
         </div>
+        
+        <div id="available-apps-grid" class="available-grid">
+            </div>
+
+        <div class="modal-footer">
+            <button class="btn-close" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div id="sub-modal" class="modal-overlay">
+    <div class="modal-content alert">
+        <h2>Limit Reached! 🚀</h2>
+        <p>You've used your 3 free slots. Upgrade to Pro for unlimited goAPPs.</p>
+        <button class="btn-upgrade">Upgrade for $9.99/mo</button>
+        <button class="btn-close" onclick="closeSubModal()">Maybe Later</button>
+    </div>
+</div>
     </div>
 
     <script src="script.js"></script>
