@@ -57,3 +57,37 @@ window.onload = () => {
     animateBalance(userProfile.balance);
     renderApps();
 };
+
+// Initialize
+window.onload = () => {
+    const splash = document.getElementById('splash-screen');
+    const bar = document.getElementById('loading-bar');
+    const loadingText = document.getElementById('loading-text');
+
+    let progress = 0;
+    const interval = setInterval(() => {
+        // Increment progress randomly for a realistic "loading" feel
+        progress += Math.floor(Math.random() * 15) + 5; 
+
+        if (progress >= 100) {
+            progress = 100;
+            bar.style.width = '100%';
+            loadingText.innerText = 'Synchronized! ✅';
+            clearInterval(interval);
+            
+            // Fade out splash screen after reaching 100%
+            setTimeout(() => {
+                splash.classList.add('splash-hidden');
+                
+                // ONLY START THE WALLET ANIMATION AFTER SPLASH DISAPPEARS
+                setTimeout(() => {
+                    animateBalance(userProfile.balance);
+                }, 500); 
+            }, 800);
+        } else {
+            bar.style.width = progress + '%';
+        }
+    }, 150);
+
+    renderApps();
+};
