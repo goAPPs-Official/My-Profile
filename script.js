@@ -91,3 +91,51 @@ window.onload = () => {
 
     renderApps();
 };
+
+const availableApps = [
+    { id: 1, name: "Crypto Pulse", icon: "📈", cat: "Finance" },
+    { id: 2, name: "FitTrack Go", icon: "🏃", cat: "Health" },
+    { id: 3, name: "Cloud Drive", icon: "☁️", cat: "Tools" },
+    { id: 4, name: "Music Stream", icon: "🎵", cat: "Social" },
+    { id: 5, name: "Smart Home", icon: "🏠", cat: "IoT" },
+    { id: 6, name: "Dev Console", icon: "💻", cat: "Tools" }
+];
+
+// 1. Show the Marketplace
+function showConnectModal() {
+    const grid = document.getElementById('available-apps-grid');
+    grid.innerHTML = availableApps.map(app => `
+        <div class="selectable-app" onclick="attemptConnect('${app.name}', '${app.icon}')">
+            <span class="app-icon">${app.icon}</span>
+            <span class="app-name">${app.name}</span>
+        </div>
+    `).join('');
+    document.getElementById('modal').style.display = 'grid';
+}
+
+// 2. Filter Search
+function filterApps() {
+    const query = document.getElementById('app-search').value.toLowerCase();
+    const apps = document.querySelectorAll('.selectable-app');
+    apps.forEach(app => {
+        const name = app.querySelector('.app-name').innerText.toLowerCase();
+        app.classList.toggle('hidden', !name.includes(query));
+    });
+}
+
+// 3. Connect Attempt (Limit Check)
+function attemptConnect(name, icon) {
+    if (userProfile.connectedApps.length >= 3) {
+        document.getElementById('modal').style.display = 'none'; // Hide marketplace
+        document.getElementById('sub-modal').style.display = 'grid'; // Show paywall
+    } else {
+        userProfile.connectedApps.push({ name, icon });
+        renderApps();
+        closeModal();
+        alert(`${name} connected successfully!`);
+    }
+}
+
+function closeSubModal() {
+    document.getElementById('sub-modal').style.display = 'none';
+}
