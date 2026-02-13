@@ -207,3 +207,79 @@ body.dark-mode {
 .app-icon { font-size: 2.5rem; display: block; margin-bottom: 8px; }
 
 .alert { border-top: 4px solid var(--premium); text-align: center; }
+/* --- RESPONSIVE ADJUSTMENTS --- */
+
+/* Mobile & Tablet Styles */
+@media (max-width: 768px) {
+    /* 1. Stack the layout vertically */
+    .profile-body {
+        grid-template-columns: 1fr; /* Sidebar and Content now stack */
+        padding: 10px;
+        gap: 12px;
+    }
+
+    /* 2. Center the Profile Header */
+    .header-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-top: -84px; /* Adjust based on avatar size */
+        padding: 0 15px 15px;
+    }
+
+    .profile-info {
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .avatar {
+        width: 132px; /* Slightly smaller for mobile */
+        height: 132px;
+    }
+
+    /* 3. Re-style Wallet for Mobile */
+    .wallet-card {
+        width: 100%;
+        margin-top: 15px;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+    /* 4. Full-width Buttons for thumb-friendly interaction */
+    .btn-primary {
+        width: 100%;
+        margin-top: 10px;
+        padding: 12px;
+    }
+
+    .section-header {
+        flex-direction: column;
+    }
+
+    /* 5. Adjust App Grid for smaller screens */
+    .app-grid {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns on mobile instead of 1 or many */
+    }
+
+    /* 6. Marketplace Modal adjustments */
+    .modal-content.marketplace {
+        width: 95%;
+        padding: 15px;
+    }
+    
+    .available-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Very Small Devices (Phones under 400px) */
+@media (max-width: 400px) {
+    .app-grid {
+        grid-template-columns: 1fr; /* Single column for very small phones */
+    }
+    
+    .logo-animation {
+        font-size: 2.2rem;
+    }
+}
