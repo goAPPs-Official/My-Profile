@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>goAPPs | Professional Profile</title>
+    <style>
+        :root {
+            --bg: #121212; --card: #1e1e1e; --text: #e4e6eb;
+            --border: #333; --accent: #2d88ff; --premium: #f5c330;
+            --success: #4ade80; --danger: #f87171;
+        }
+        [data-theme="light"] {
+            --bg: #f0f2f5; --card: #ffffff; --text: #1c1e21;
+            --border: #ddd; --accent: #1877f2;
+        }
+
+        /* Base Styles */
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; transition: 0.3s; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 15px; }
+        .hidden { display: none !important; }
+
+        /* Splash Screen */
+        #splash-screen {
+            position: fixed; inset: 0; background: #000; z-index: 2000;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 0.8s;
+        }
+        .splash-content { text-align: center; width: 280px; }
+        .logo-anim { font-size: 2.5rem; font-weight: 800; margin-bottom: 20px; animation: pulse 2s infinite; }
+        .logo-anim span { color: var(--accent); }
+        .loader-bg { height: 6px; background: #222; border-radius: 10px; overflow: hidden; }
+        #loading-bar { width: 0%; height: 100%; background: var(--accent); transition: 0.3s; }
+
+        /* Header & Profile */
+        .cover { height: 220px; background: linear-gradient(135deg, #2d88ff, #7c4dff); border-radius: 0 0 12px 12px; }
+        .header-content { display: flex; justify-content: space-between; align-items: flex-end; padding: 0 20px; margin-top: -60px; }
+        .avatar { width: 150px; height: 150px; border-radius: 50%; background: #444; border: 4px solid var(--bg); }
+        .wallet-card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; min-width: 180px; }
+        .balance { font-size: 1.8rem; font-weight: 800; color: var(--success); margin-bottom: 5px; }
+
+        /* Layout Grid */
+        .main-grid { display: grid; grid-template-columns: 340px 1fr; gap: 16px; margin-top: 20px; padding-bottom: 50px; }
+        .card { background: var(--card); border-radius: 8px; padding: 16px; border: 1px solid var(--border); margin-bottom: 16px; }
+        .app-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+        .app-item { background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; text-align: center; border: 1px solid transparent; transition: 0.2s; }
+        .app-item:hover { border-color: var(--accent); transform: translateY(-3px); }
+
+        /* Transactions */
+        .tx-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+        .amount-plus { color: var(--success); } .amount-minus { color: var(--danger); }
+
+        /* Bank Details Box */
+        .bank-box { background: rgba(45, 136, 255, 0.1); border: 1px dashed var(--accent); padding: 12px; border-radius: 8px; margin: 15px 0; font-size: 0.85rem; }
+        .detail { display: flex; justify-content: space-between; margin-bottom: 5px; }
+
+        /* Buttons & Inputs */
+        .btn-primary { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; }
+        .btn-topup { background: var(--success); color: #000; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.75rem; font-weight: bold; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; place-items: center; z-index: 3000; padding: 20px; }
+        .modal { background: var(--card); padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; border: 1px solid var(--border); }
+        input { width: 100%; padding: 12px; background: #2c2c2e; border: 1px solid #444; border-radius: 8px; color: white; margin: 10px 0; box-sizing: border-box; }
+
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @media (max-width: 768px) { .main-grid { grid-template-columns: 1fr; } .header-content { flex-direction: column; align-items: center; text-align: center; } }
+    </style>
+</head>
+<body>
+
+    <div id="splash-screen">
+        <div class="splash-content">
+            <div class="logo-anim">go<span>APPs</span></div>
+            <div class="loader-bg"><div id="loading-bar"></div></div>
+            <p id="load-msg" style="font-size: 0.7rem; color: #666; margin-top: 10px;">SECURE LOGON...</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <header class="cover"></header>
+        <div class="header-content">
+            <div style="display: flex; flex-direction: column; align-items: center;">
+                <div class="avatar"></div>
+                <h1 style="margin: 10px 0 5px;">User Profile</h1>
+                <button onclick="toggleTheme()" style="background:none; border:none; cursor:pointer; font-size:1.2rem;">🌓</button>
+            </div>
+            <div class="wallet-card">
+                <div class="balance" id="wallet-balance">$0.00</div>
+                <button class="btn-topup" onclick="openModal('deposit-modal')">+ TOP UP WALLET</button>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <aside>
+                <div class="card">
+                    <h3>Status</h3>
+                    <p id="user-tier" style="color: var(--accent); font-weight: bold;">Free Tier (3/3 used)</p>
+                </div>
+                <div class="card">
+                    <h3>Recent Transactions</h3>
+                    <div id="tx-list"><p style="color:#666; font-size:0.8rem;">No activity yet.</p></div>
+                </div>
+            </aside>
+
+            <section>
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                        <h2 style="margin:0;">My goAPPs</h2>
+                        <button class="btn-primary" style="width:auto;" onclick="openModal('market-modal')">Connect New</button>
+                    </div>
+                    <div id="app-display-grid" class="app-grid"></div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <div id="deposit-modal" class="modal-overlay">
+        <div class="modal">
+            <h3>Bank Transfer Details</h3>
+            <div class="bank-box">
+                <div class="detail"><span>Bank:</span> <strong>GTBank</strong></div>
+                <div class="detail"><span>Name:</span> <strong>DigitalSolution360</strong></div>
+                <div class="detail"><span>Account:</span> <strong>0265544737</strong></div>
+            </div>
+            <input type="number" id="dep-amount" placeholder="Amount to Top-up">
+            <input type="text" id="dep-code" placeholder="Verification Code">
+            <button class="btn-primary" onclick="handleDeposit()">Verify & Deposit</button>
+            <button onclick="closeModals()" style="background:none; border:none; color:#888; width:100%; margin-top:10px; cursor:pointer;">Cancel</button>
+        </div>
+    </div>
+
+    <div id="market-modal" class="modal-overlay">
+        <div class="modal" style="max-width: 500px;">
+            <h3>App Marketplace</h3>
+            <div class="app-grid" id="market-grid" style="margin-top:15px;"></div>
+            <button onclick="closeModals()" style="background:none; border:none; color:#888; width:100%; margin-top:15px; cursor:pointer;">Close</button>
+        </div>
+    </div>
+
+    <script>
+        let user = { balance: 1250.00, isPremium: false, apps: [{n:'Messenger', i:'💬'}, {n:'Tasks', i:'✅'}, {n:'Market', i:'🛒'}] };
+        const market = [{n:'Crypto', i:'📈'}, {n:'FitGo', i:'🏃'}, {n:'Cloud', i:'☁️'}, {n:'Music', i:'🎵'}];
+
+        // 1. Splash Logic
+        window.onload = () => {
+            let prog = 0;
+            const b = document.getElementById('loading-bar');
+            const int = setInterval(() => {
+                prog += Math.random() * 20;
+                if(prog >= 100) {
+                    b.style.width = '100%'; clearInterval(int);
+                    setTimeout(() => { 
+                        document.getElementById('splash-screen').style.opacity = '0';
+                        setTimeout(() => { 
+                            document.getElementById('splash-screen').style.display = 'none';
+                            animateBalance(0, user.balance);
+                        }, 800);
+                    }, 500);
+                } else { b.style.width = prog + '%'; }
+            }, 100);
+            renderApps();
+        };
+
+        // 2. Wallet Animation
+        function animateBalance(start, end) {
+            const el = document.getElementById('wallet-balance');
+            let curr = start;
+            const step = (end - start) / 50;
+            const timer = setInterval(() => {
+                curr += step;
+                if((step > 0 && curr >= end) || (step < 0 && curr <= end)) {
+                    el.innerText = `$${end.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+                    clearInterval(timer);
+                } else {
+                    el.innerText = `$${curr.toLocaleString(undefined, {minimumFractionDigits:2})}`;
+                }
+            }, 30);
+        }
+
+        // 3. App Logic
+        function renderApps() {
+            const grid = document.getElementById('app-display-grid');
+            grid.innerHTML = user.apps.map(a => `<div class="app-item"><div style="font-size:2rem">${a.i}</div><p>${a.n}</p></div>`).join('');
+            
+            const mGrid = document.getElementById('market-grid');
+            mGrid.innerHTML = market.map(a => `
+                <div class="app-item" onclick="connectApp('${a.n}', '${a.i}')" style="cursor:pointer">
+                    <div style="font-size:1.5rem">${a.i}</div><p style="font-size:0.8rem">${a.n}</p>
+                </div>`).join('');
+        }
+
+        function connectApp(n, i) {
+            if(!user.isPremium && user.apps.length >= 3) {
+                alert("Limit Reached! Please upgrade to Premium.");
+            } else {
+                user.apps.push({n, i});
+                renderApps();
+                closeModals();
+                addTx(n + " Connected", 0, 'cost');
+            }
+        }
+
+        // 4. Deposit & UI
+        function handleDeposit() {
+            const amt = parseFloat(document.getElementById('dep-amount').value);
+            const code = document.getElementById('dep-code').value;
+            if(!amt || code.length < 3) return alert("Invalid details");
+            
+            const old = user.balance;
+            user.balance += amt;
+            closeModals();
+            animateBalance(old, user.balance);
+            addTx("Wallet Top-up", amt, 'deposit');
+        }
+
+        function addTx(n, a, t) {
+            const list = document.getElementById('tx-list');
+            if(list.innerHTML.includes('No activity')) list.innerHTML = '';
+            const html = `
+                <div class="tx-item">
+                    <div><strong>${n}</strong><br><small>${new Date().toLocaleDateString()}</small></div>
+                    <div class="${t === 'deposit' ? 'amount-plus' : 'amount-minus'}">${t==='deposit'?'+':'-'}$${a}</div>
+                </div>`;
+            list.innerHTML = html + list.innerHTML;
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'grid'; }
+        function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
+        function toggleTheme() {
+            const t = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', t);
+        }
+    </script>
+</body>
+</html>
