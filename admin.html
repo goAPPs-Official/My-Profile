@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>goAPPs | 🇳🇬 Pro Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         :root {
             --bg: #062c1e;
@@ -128,15 +129,24 @@
                     <span>Bonus: 🏆 2.00 gc</span>
                     <span id="tier-text">Free Tier (3/3)</span>
                 </div>
-                <button class="btn-action" style="background: rgba(255,255,255,0.2); color: white; margin-top: 15px;" onclick="openModal('topup-modal')">Deposit Funds</button>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+                    <button class="btn-action" style="background: rgba(255,255,255,0.2); color: white; margin:0;" onclick="openModal('topup-modal')">Deposit</button>
+                    <button class="btn-action" style="background: white; color: #062c1e; margin:0;" onclick="openModal('transfer-modal')">Send ↗️</button>
+                </div>
             </div>
 
             <div class="section-title">
-                <span>Connect goAPPs</span>
+                <span>Quick Actions</span>
                 <small style="color: var(--primary); cursor: pointer;" onclick="openModal('market-modal')">Open Market 🏪</small>
             </div>
-            <div class="grid" id="connected-apps-grid">
-                </div>
+            <div class="grid">
+                <div class="service-item highlight" onclick="showMyQR()"><span>🤳</span><b>My QR</b></div>
+                <div class="service-item highlight" onclick="startScanner()"><span>📷</span><b>Scan Pay</b></div>
+            </div>
+
+            <div class="section-title">Connected goAPPs</div>
+            <div class="grid" id="connected-apps-grid"></div>
 
             <h3 class="section-title">Recent Activity 📜</h3>
             <div class="tx-list" id="transaction-feed">
@@ -158,24 +168,55 @@
             <b>Account: DigitalSolution360</b><br>
             <b>Number: 0265544737</b>
         </div>
-        <div class="input-group">
-            <input type="number" id="topup-amount" placeholder="Amount (₦)">
-        </div>
-        <div class="input-group">
-            <input type="text" id="topup-code" placeholder="Top-up/Transfer Code">
-        </div>
+        <div class="input-group"><input type="number" id="topup-amount" placeholder="Amount (₦)"></div>
+        <div class="input-group"><input type="text" id="topup-code" placeholder="Top-up/Transfer Code"></div>
         <button class="btn-action" onclick="executeTopup()">Confirm Deposit</button>
         <button class="btn-cancel" onclick="closeModals()">Cancel</button>
     </div>
 
+    <div id="transfer-modal" class="modal">
+        <h3 style="text-align: center;">Send Tokens</h3>
+        <div class="input-group">
+            <input type="text" id="transfer-address" placeholder="Receiver Wallet Address">
+            <small style="color: var(--primary); cursor: pointer; display: block; margin-top: 5px;" onclick="startScanner()">📷 Scan QR Code</small>
+        </div>
+        <div class="input-group"><input type="number" id="transfer-amount" placeholder="Amount (₦)"></div>
+        <button class="btn-action" onclick="openPinModal()">Authorize Transfer</button>
+        <button class="btn-cancel" onclick="closeModals()">Cancel</button>
+    </div>
+
+    <div id="pin-modal" class="modal" style="justify-content: center; background: rgba(0,0,0,0.95);">
+        <div style="background: var(--card); padding: 30px; border-radius: 24px; text-align: center; border: 1px solid var(--primary);">
+            <h3>Secure PIN</h3>
+            <p style="font-size: 0.75rem; opacity: 0.7;">Sending to: <span id="display-receiver" style="color: var(--primary);">---</span></p>
+            <input type="password" id="secure-pin" maxlength="4" placeholder="****" style="font-size: 2rem; text-align: center; letter-spacing: 15px; background: transparent; border:none; border-bottom: 2px solid var(--primary); color: white; width: 150px; margin: 20px 0; outline:none;">
+            <button class="btn-action" onclick="finalizeTransfer()">Verify & Send</button>
+            <p style="font-size: 0.6rem; color: #888; margin-top: 15px;">Redirecting to WhatsApp for OTP verification...</p>
+        </div>
+    </div>
+
+    <div id="my-qr-modal" class="modal">
+        <div style="text-align: center; background: var(--card); padding: 30px; border-radius: 24px; margin: auto; border: 1px solid var(--primary);">
+            <h3>Receive Tokens</h3>
+            <div id="qr-code-display" style="background: white; padding: 15px; border-radius: 12px; display: inline-block; margin: 15px 0;">
+                <img id="qr-img" src="" alt="QR" style="width: 180px; height: 180px;">
+            </div>
+            <div style="font-family: monospace; font-size: 0.8rem; background: var(--input-bg); padding: 10px; border-radius: 8px;">ID: GO-NG-52A3</div>
+            <button class="btn-cancel" onclick="closeModals()">Close</button>
+        </div>
+    </div>
+
+    <div id="scanner-modal" class="modal">
+        <h3 style="text-align: center;">Scan to Pay</h3>
+        <div id="reader" style="width: 100%; border-radius: 15px; overflow: hidden;"></div>
+        <button class="btn-cancel" onclick="stopScanner()">Stop Camera</button>
+    </div>
+
     <div id="market-modal" class="modal">
         <h3 style="text-align: center;">App Marketplace</h3>
-        <p style="font-size: 0.75rem; text-align: center; opacity: 0.7; margin-bottom: 20px;">Select an app to connect to your dashboard.</p>
-        <div class="grid" id="market-list">
-            </div>
+        <div class="grid" id="market-list"></div>
         <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.1); margin: 20px 0;">
         <div id="upgrade-section">
-            <p style="font-size: 0.7rem; text-align: center;">Running out of slots? Unlock Unlimited.</p>
             <button class="btn-action" style="background: var(--premium);" onclick="upgradePro()">Upgrade to Pro (₦5,000)</button>
         </div>
         <button class="btn-cancel" onclick="closeModals()">Close</button>
@@ -184,7 +225,6 @@
     <div id="reveal-modal" class="modal" style="justify-content: center;">
         <div style="background: var(--card); padding: 25px; border-radius: 20px; text-align: center;">
             <h3>Verify Identity</h3>
-            <p style="font-size: 0.8rem; opacity: 0.8;">Enter your WhatsApp number to receive an OTP.</p>
             <input type="number" id="wa-num" placeholder="080XXXXXXXX" style="width: 100%; padding: 12px; border-radius: 8px; background: #0d4d36; color: white; border: none; margin: 10px 0;">
             <button class="btn-action" onclick="alert('OTP Sent to WhatsApp!')">Request Code</button>
             <button class="btn-cancel" onclick="closeModals()">Cancel</button>
@@ -192,6 +232,9 @@
     </div>
 
     <script>
+        const ADMIN_WEBHOOK = "https://formspree.io/f/your-id"; // REPLACE THIS
+        const WHATSAPP_SUPPORT = "2348026554473"; // REPLACE THIS
+        
         let userData = {
             balance: 5600.00,
             isPro: false,
@@ -199,39 +242,20 @@
             history: []
         };
 
-        const marketItems = [
-            {n:'goCBT', i:'🎓'}, {n:'goRIDEs', i:'🚗'}, {n:'goMEDIC', i:'🚑'}, 
-            {n:'goSHOP', i:'🛒'}, {n:'goTRIPs', i:'✈'}, {n:'SwapR', i:'💱'}
-        ];
+        const marketItems = [{n:'goCBT', i:'🎓'}, {n:'goRIDEs', i:'🚗'}, {n:'goMEDIC', i:'🚑'}, {n:'goSHOP', i:'🛒'}, {n:'goTRIPs', i:'✈'}];
+        let html5QrCode;
 
-        // --- Initialization ---
         window.onload = () => {
             setTimeout(() => {
                 document.getElementById('splash-screen').style.opacity = '0';
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                    animateBalance(0, userData.balance);
-                }, 600);
+                setTimeout(() => { document.getElementById('splash-screen').style.display = 'none'; animateBalance(0, userData.balance); }, 600);
             }, 1500);
             renderDashboard();
         };
 
         function renderDashboard() {
-            // Render Connected Apps
-            const grid = document.getElementById('connected-apps-grid');
-            grid.innerHTML = userData.apps.map(app => `
-                <div class="service-item"><span>${app.i}</span><b>${app.n}</b></div>
-            `).join('');
-
-            // Render Market
-            const mList = document.getElementById('market-list');
-            mList.innerHTML = marketItems.map(item => `
-                <div class="service-item" onclick="connectApp('${item.n}', '${item.i}')">
-                    <span>${item.i}</span><small>${item.n}</small>
-                </div>
-            `).join('');
-
-            // Update Tier Text
+            document.getElementById('connected-apps-grid').innerHTML = userData.apps.map(app => `<div class="service-item"><span>${app.i}</span><b>${app.n}</b></div>`).join('');
+            document.getElementById('market-list').innerHTML = marketItems.map(item => `<div class="service-item" onclick="connectApp('${item.n}', '${item.i}')"><span>${item.i}</span><small>${item.n}</small></div>`).join('');
             document.getElementById('tier-text').innerText = userData.isPro ? "Pro Edition (Unlimited)" : `Free Tier (${userData.apps.length}/3)`;
             if(userData.isPro) {
                 document.getElementById('premium-indicator').classList.remove('hidden');
@@ -239,72 +263,85 @@
             }
         }
 
-        // --- Core Functions ---
-        function animateBalance(start, end) {
-            const el = document.getElementById('balance-display');
-            let curr = start;
-            const step = (end - start) / 40;
-            const timer = setInterval(() => {
-                curr += step;
-                if((step > 0 && curr >= end) || (step < 0 && curr <= end)) {
-                    el.innerText = `₦${end.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-                    clearInterval(timer);
-                } else {
-                    el.innerText = `₦${curr.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-                }
-            }, 30);
+        async function sendEmailAlert(action, details) {
+            const payload = { subject: `🚨 goAPPs Alert: ${action}`, message: `Action: ${action}\nAmount: ₦${details.amount}\nUser: ${details.user}\nRef: ${details.code}` };
+            try { await fetch(ADMIN_WEBHOOK, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); } catch (e) {}
         }
 
         function executeTopup() {
             const amt = parseFloat(document.getElementById('topup-amount').value);
             const code = document.getElementById('topup-code').value;
-            if(!amt || code.length < 3) return alert("Enter valid deposit details.");
+            if(!amt || code.length < 3) return alert("Invalid details.");
+            sendEmailAlert("DEPOSIT REQUEST", { amount: amt, user: "DIGITAL USER", code: code });
+            const old = userData.balance; userData.balance += amt;
+            addHistory("Deposit Verified", amt, 'pos'); closeModals(); animateBalance(old, userData.balance);
+            alert("Processing Transfer...");
+        }
 
-            const old = userData.balance;
-            userData.balance += amt;
-            addHistory("Deposit Verified", amt, 'pos');
-            closeModals();
-            animateBalance(old, userData.balance);
-            alert(`₦${amt.toLocaleString()} successfully added!`);
+        function openPinModal() {
+            const addr = document.getElementById('transfer-address').value;
+            const amt = document.getElementById('transfer-amount').value;
+            if(!addr || !amt) return alert("Fill all fields.");
+            document.getElementById('display-receiver').innerText = addr;
+            openModal('pin-modal');
+        }
+
+        function finalizeTransfer() {
+            const pin = document.getElementById('secure-pin').value;
+            const amt = parseFloat(document.getElementById('transfer-amount').value);
+            const addr = document.getElementById('transfer-address').value;
+            if(pin.length < 4) return alert("Enter 4-digit PIN.");
+            sendEmailAlert("TRANSFER INITIATED", { amount: amt, user: "DIGITAL USER", code: `To: ${addr}` });
+            const msg = encodeURIComponent(`Hello goAPPs Support, authorizing transfer of ₦${amt} to Wallet: ${addr}. Generate Transfer OTP.`);
+            window.open(`https://wa.me/${WHATSAPP_SUPPORT}?text=${msg}`, '_blank');
+            const old = userData.balance; userData.balance -= amt;
+            addHistory(`Sent to ${addr.slice(0,5)}`, amt, 'neg');
+            closeModals(); animateBalance(old, userData.balance);
+        }
+
+        function showMyQR() {
+            document.getElementById('qr-img').src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=GO-NG-52A3`;
+            openModal('my-qr-modal');
+        }
+
+        function startScanner() {
+            openModal('scanner-modal');
+            html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
+                document.getElementById('transfer-address').value = txt;
+                stopScanner(); openModal('transfer-modal');
+            });
+        }
+
+        function stopScanner() { if(html5QrCode) html5QrCode.stop().then(() => closeModals()); else closeModals(); }
+
+        function animateBalance(s, e) {
+            const el = document.getElementById('balance-display');
+            let c = s; const step = (e - s) / 30;
+            const t = setInterval(() => {
+                c += step; if((step > 0 && c >= e) || (step < 0 && c <= e)) { el.innerText = `₦${e.toLocaleString()}`; clearInterval(t); }
+                else el.innerText = `₦${c.toLocaleString(undefined, {maximumFractionDigits:0})}`;
+            }, 30);
         }
 
         function upgradePro() {
-            const cost = 5000;
-            if(userData.balance < cost) return alert("Insufficient balance to upgrade.");
-            
-            const old = userData.balance;
-            userData.balance -= cost;
-            userData.isPro = true;
-            addHistory("Pro Upgrade", cost, 'neg');
-            closeModals();
-            animateBalance(old, userData.balance);
-            renderDashboard();
-            alert("Welcome to goAPPs Pro!");
-        }
-
-        function connectApp(n, i) {
-            if(!userData.isPro && userData.apps.length >= 3) {
-                alert("App limit reached! Upgrade to Pro for unlimited connections.");
-                return;
-            }
-            if(userData.apps.find(a => a.n === n)) return alert("App already connected.");
-            
-            userData.apps.push({n, i});
-            addHistory(n + " Linked", 0, 'pos');
-            renderDashboard();
-            closeModals();
+            if(userData.balance < 5000) return alert("Low balance.");
+            userData.balance -= 5000; userData.isPro = true;
+            addHistory("Pro Upgrade", 5000, 'neg'); renderDashboard(); closeModals();
         }
 
         function addHistory(title, amt, type) {
-            const date = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            userData.history.unshift({title, amt, type, date});
-            const feed = document.getElementById('transaction-feed');
-            feed.innerHTML = userData.history.map(item => `
+            userData.history.unshift({title, amt, type, date: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})});
+            document.getElementById('transaction-feed').innerHTML = userData.history.map(i => `
                 <div class="tx-item">
-                    <div><b>${item.title}</b><br><small style="opacity:0.6">${item.date}</small></div>
-                    <div class="${item.type === 'pos' ? 'tx-amt-pos' : 'tx-amt-neg'}">${item.type === 'pos' ? '+' : '-'} ₦${item.amt.toLocaleString()}</div>
-                </div>
-            `).join('');
+                    <div><b>${i.title}</b><br><small style="opacity:0.6">${i.date}</small></div>
+                    <div class="${i.type === 'pos' ? 'tx-amt-pos' : 'tx-amt-neg'}">${i.type === 'pos' ? '+' : '-'} ₦${i.amt.toLocaleString()}</div>
+                </div>`).join('');
+        }
+
+        function connectApp(n, i) {
+            if(!userData.isPro && userData.apps.length >= 3) return alert("Upgrade to Pro!");
+            userData.apps.push({n, i}); renderDashboard(); closeModals();
         }
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; }
